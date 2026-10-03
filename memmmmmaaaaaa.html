@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WEEDS NGA</title>
+  <style>
+    body {font-family: Arial, sans-serif; background: #b556a8; margin: 0; padding: 0;}
+    header {background: #0c510f; color: white; padding: 20px; text-align: center;}
+    .container {width: 80%; margin: auto; padding: 20px;}
+    .profile {display: flex; align-items: center; margin-bottom: 30px;}
+    .profile img {width: 150px; border-radius: 10px; margin-right: 20px;}
+    .details {flex: 1;}
+    .qr-section {display: flex; justify-content: space-around; margin-top: 40px;}
+    .qr-box {text-align: center;}
+    .qr-box img {width: 200px; margin-bottom: 10px;}
+    .gallery {margin-top: 40px;}
+    .book-grid {display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; transition: all 0.5s ease;}
+    .book-card {background: #db74d4; border: 1px solid #e053e4; padding: 10px; text-align: center; transition: transform 0.3s ease;}
+    .book-card img, .book-card video {width: 100%; height: auto; border-radius: 5px;}
+    .book-card:hover {transform: scale(1.05) rotate(2deg);}
+    .reviews {margin-top: 40px;}
+    .reviews form {display: flex; flex-direction: column; gap: 10px;}
+    .reviews input, .reviews textarea {padding: 10px; border: 1px solid #ccc; border-radius: 5px;}
+    .reviews button {background: #0c510f; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;}
+    .review-item {background: #eee; padding: 10px; margin: 5px 0; border-radius: 5px;}
+    .review-item button {margin-left: 10px; background: red; color: white; border: none; padding: 5px; border-radius: 3px; cursor: pointer;}
+    footer {background: #333; color: white; text-align: center; padding: 10px; margin-top: 40px;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>WEEDSTOOO</h1>
+  </header>
+
+  <div class="container">
+    <!-- Profile Section -->
+    <div class="profile">
+      <img src="MEMA.png" alt="Profile Picture">
+      <div class="details">
+        <h2>leaves</h2>
+        <p>descriptions</p>
+        <p>steps by steps</p>
+      </div>
+    </div>
+
+    <!-- QR Section -->
+    <div class="qr-section">
+      <div class="qr-box">
+        <h3>Facebook Profile</h3>
+        <img src="qrprofile.jpg" alt="Facebook QR">
+        <p>Scan to view my Facebook profile</p>
+      </div>
+      <div class="qr-box">
+        <h3>Payment</h3>
+        <img src="qrpayment.jpg" alt="Payment QR">
+        <p>Scan to send payment</p>
+      </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <div class="gallery">
+      <h2>Proof</h2>
+      <button onclick="shuffleGallery()">Picture/Videos</button>
+      <div class="book-grid" id="bookGrid">
+        <!-- Video 1 -->
+        <div class="book-card">
+          <video controls>
+            <source src="video1.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p>Video</p>
+        </div>
+
+        <!-- Video 2 -->
+        <div class="book-card">
+          <video controls>
+            <source src="video2.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p>Video</p>
+        </div>
+
+        <!-- Picture -->
+        <div class="book-card">
+          <img src="pic.png" alt="Style Picture">
+          <p>Picture</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews">
+      <h2>User Reviews</h2>
+      <form id="reviewForm">
+        <input type="text" id="username" placeholder="Your name" required>
+        <textarea id="reviewText" placeholder="Write your review..." required></textarea>
+        <button type="submit">Submit Review</button>
+      </form>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 aku | All Rights Reserved</p>
+  </footer>
+
+  <script>
+    const reviewList = document.getElementById("reviewList");
+    const savedReviews = JSON.parse(localStorage.getItem("reviews")) || [];
+
+    const ADMIN_PASSWORD = "secret123"; // palitan mo ng gusto mong password
+    let isAdmin = false;
+
+    function adminLogin() {
+      const pass = prompt("Enter admin password to enable delete:");
+      if (pass === ADMIN_PASSWORD) {
+        isAdmin = true;
+        alert("Admin mode enabled. You can delete reviews.");
+        displayReviews();
+      } else {
+        alert("Wrong password. Delete disabled.");
+      }
+    }
+
+    function displayReviews() {
+      reviewList.innerHTML = "";
+      savedReviews.forEach((r, index) => {
+        const div = document.createElement("div");
+        div.className = "review-item";
+        div.innerHTML = `<strong>${r.user}</strong>: ${r.text}`;
+        if (isAdmin) {
+          const btn = document.createElement("button");
+          btn.textContent = "Delete";
+          btn.onclick = () => {
+            savedReviews.splice(index, 1);
+            localStorage.setItem("reviews", JSON.stringify(savedReviews));
+            displayReviews();
+          };
+          div.appendChild(btn);
+        }
+        reviewList.appendChild(div);
+      });
+    }
+
+    displayReviews();
+
+    document.getElementById("reviewForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const user = document.getElementById("username").value;
+      const text = document.getElementById("reviewText").value;
+      savedReviews.push({user, text});
+      localStorage.setItem("reviews", JSON.stringify(savedReviews));
+      displayReviews();
+      this.reset();
+    });
+
+    // 🔹 Shuffle function
+    function shuffleGallery() {
+      const grid = document.getElementById("bookGrid");
+      const cards = Array.from(grid.children);
+      for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+      }
+      grid.innerHTML = "";
+      cards.forEach(card => grid.appendChild(card));
+    }
+
+    window.onload = () => {
+      adminLogin();
+      shuffleGallery();
+    };
+  </script>
+</body>
+</html>
